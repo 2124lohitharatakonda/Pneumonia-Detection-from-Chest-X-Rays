@@ -1,0 +1,105 @@
+/* ============================================================
+   PneumoDetect — Responsive Stylesheet
+   ============================================================ */
+
+/* ── Large desktops (≥1200px) ──────────────────────────────── */
+@media (min-width: 1200px) {
+  .hero-section {
+    padding: 100px 0;
+  }
+  .hero-icon {
+    font-size: 5.5rem;
+  }
+}
+
+/* ── Medium devices (tablets, 768px–991px) ─────────────────── */
+@media (max-width: 991px) {
+  .hero-section {
+    padding: 60px 0;
+  }
+  .hero-section h1.display-4 {
+    font-size: 2.2rem;
+  }
+  .stats-bar h3 {
+    font-size: 1.6rem;
+  }
+  .navbar-collapse {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+  }
+}
+
+/* ── Small devices (phones, <768px) ────────────────────────── */
+@media (max-width: 767px) {
+  .hero-section {
+    padding: 50px 0;
+  }
+  .hero-section h1.display-4 {
+    font-size: 1.8rem;
+  }
+  .hero-section .lead {
+    font-size: 1rem;
+  }
+  .hero-icon {
+    font-size: 3.5rem;
+  }
+  .stats-bar .col-6 {
+    margin-bottom: 0.75rem;
+  }
+  .stats-bar h3 {
+    font-size: 1.4rem;
+  }
+  .page-header h1 {
+    font-size: 1.8rem;
+  }
+  .upload-area {
+    padding: 30px 15px;
+  }
+  .card-body.p-5 {
+    padding: 2rem !important;
+  }
+  .btn-lg {
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+  }
+  .display-1 {
+    font-size: 5rem;
+  }
+  /* Result page: stack image and scores vertically */
+  .col-md-5,
+  .col-md-7 {
+    margin-bottom: 1rem;
+  }
+  /* History grid: single column on mobile */
+  .col-md-6.col-lg-4 {
+    margin-bottom: 1rem;
+  }
+  /* Navigation buttons on result page */
+  .text-center .btn-lg {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.75rem;
+  }
+  .text-center .btn-lg.mr-3 {
+    margin-right: 0 !important;
+  }
+}
+
+/* ── Extra small (≤480px) ───────────────────────────────────── */
+@media (max-width: 480px) {
+  .hero-section h1.display-4 {
+    font-size: 1.5rem;
+  }
+  .card-body.p-4 {
+    padding: 1.25rem !important;
+  }
+  .footer-section p {
+    font-size: 0.8rem;
+  }
+  .avatar-circle {
+    width: 52px;
+    height: 52px;
+  }
+}

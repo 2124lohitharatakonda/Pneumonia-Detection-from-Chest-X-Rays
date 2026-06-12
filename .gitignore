@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Large model files (too big for GitHub)
+saved_models/*.h5
+saved_models/*.keras
+saved_models/*.pkl
+saved_models/*.npy
+!saved_models/.gitkeep
+
+# Dataset (1.2GB - too large for GitHub)
+DATASET/
+
+# Uploads
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
+# Environment / secrets
+.env
+*.env
+instance/
+
+# Flask session files
+flask_session/
+
+# Claude internal
+.claude/
+
+# Database
+*.db
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

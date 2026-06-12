@@ -1,0 +1,272 @@
+/* ============================================================
+   PneumoDetect — Main Stylesheet
+   ============================================================ */
+
+/* ── Base ──────────────────────────────────────────────────── */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f9;
+  color: #343a40;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main.flex-grow-1 {
+  flex: 1;
+}
+
+a {
+  color: #0d6efd;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #0a58ca;
+  text-decoration: none;
+}
+
+/* ── Hero Section ──────────────────────────────────────────── */
+.hero-section {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a3d91 100%);
+  padding: 80px 0;
+}
+
+.hero-icon {
+  font-size: 4.5rem;
+  display: block;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+/* ── Page Header ───────────────────────────────────────────── */
+.page-header {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a3d91 100%);
+}
+
+/* ── Stats Bar ─────────────────────────────────────────────── */
+.stats-bar h3 {
+  font-size: 2rem;
+}
+
+/* ── Step Cards ────────────────────────────────────────────── */
+.badge-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 auto;
+}
+
+.step-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
+}
+
+.model-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Avatar Circle ─────────────────────────────────────────── */
+.avatar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d6efd, #0a3d91);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Cards ─────────────────────────────────────────────────── */
+.card {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  font-size: 0.95rem;
+}
+
+/* ── Upload Area ───────────────────────────────────────────── */
+.upload-area {
+  border: 2px dashed #adb5bd;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+  background-color: #f8f9fa;
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+  border-color: #0d6efd;
+  background-color: #e8f0fe;
+}
+
+.upload-area.has-file {
+  border-color: #198754;
+  background-color: #f0fdf4;
+}
+
+.upload-area label {
+  cursor: pointer;
+}
+
+/* ── Loading Overlay ───────────────────────────────────────── */
+#loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(13, 110, 253, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+/* ── Progress Bars ─────────────────────────────────────────── */
+.progress {
+  border-radius: 10px;
+  background-color: #e9ecef;
+}
+
+.progress-bar {
+  border-radius: 10px;
+  transition: width 0.8s ease-in-out;
+}
+
+/* ── Precaution Box ────────────────────────────────────────── */
+.precaution-box {
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.border-left {
+  border-left-width: 4px !important;
+}
+
+/* ── Navbar ────────────────────────────────────────────────── */
+.navbar-brand {
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-item.active .nav-link {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+.footer-section {
+  background-color: #1a1a2e;
+}
+
+/* ── Flash Alerts ──────────────────────────────────────────── */
+.alert {
+  border-radius: 10px;
+  border: none;
+}
+
+.alert-success { background-color: #d1e7dd; color: #0a3622; }
+.alert-danger  { background-color: #f8d7da; color: #58151c; }
+.alert-warning { background-color: #fff3cd; color: #664d03; }
+.alert-info    { background-color: #cff4fc; color: #055160; }
+
+/* ── Forms ─────────────────────────────────────────────────── */
+.form-control {
+  border-radius: 8px;
+  border-color: #ced4da;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.btn {
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0d6efd, #0a58ca);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0a58ca, #084298);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.35);
+}
+
+/* ── Badges ────────────────────────────────────────────────── */
+.badge-pill {
+  border-radius: 50rem;
+}
+
+/* ── History Card Image ────────────────────────────────────── */
+.card-img-top {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* ── Table ─────────────────────────────────────────────────── */
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6c757d;
+}
+
+/* ── Input Group ───────────────────────────────────────────── */
+.input-group > .form-control {
+  border-radius: 8px 0 0 8px;
+}
+
+.input-group-append .btn {
+  border-radius: 0 8px 8px 0;
+}
+
+/* ── Scrollbar (WebKit) ────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #6c757d; }

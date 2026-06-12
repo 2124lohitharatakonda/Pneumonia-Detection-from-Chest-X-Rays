@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="page-header py-5 bg-primary text-white text-center">
+  <div class="container">
+    <h1 class="display-5 font-weight-bold"><i class="fas fa-x-ray mr-3"></i>Analyze Chest X-Ray</h1>
+    <p class="lead mb-0">Upload an image and get an instant AI-powered diagnosis</p>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row">
+
+      <!-- Upload Form -->
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <div class="card border-0 shadow h-100">
+          <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 font-weight-bold"><i class="fas fa-upload text-primary mr-2"></i>Upload X-Ray Image</h5>
+          </div>
+          <div class="card-body p-4">
+            <form method="POST" action="{{ url_for('prediction.predict_image') }}"
+                  enctype="multipart/form-data" id="uploadForm" novalidate>
+              {{ form.hidden_tag() }}
+
+              <!-- Drag-and-drop upload area -->
+              <div class="upload-area mb-3" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                <p class="text-muted mb-2">Drag &amp; drop your X-ray image here</p>
+                <p class="text-muted small mb-3">or</p>
+                <label class="btn btn-outline-primary mb-0" for="image">
+                  <i class="fas fa-folder-open mr-2"></i>Browse File
+                </label>
+                {{ form.image(id="image", class="d-none", accept=".jpg,.jpeg,.png") }}
+                <p class="text-muted small mt-2 mb-0">Accepted: JPG, JPEG, PNG &bull; Max size: 5 MB</p>
+              </div>
+
+              <!-- Preview -->
+              <div id="previewContainer" class="text-center mb-3 d-none">
+                <img id="imagePreview" src="#" alt="X-ray preview"
+                     class="img-fluid rounded shadow-sm" style="max-height:250px;"/>
+                <p id="previewFilename" class="text-muted small mt-2 mb-0"></p>
+              </div>
+
+              <!-- Model Selection -->
+              <div class="form-group">
+                {{ form.model_choice.label(class="font-weight-bold") }}
+                {{ form.model_choice(class="form-control") }}
+                <small class="form-text text-muted">
+                  ResNet50 is recommended for best accuracy. MobileNetV2 is faster.
+                </small>
+              </div>
+
+              <!-- Error display for image field -->
+              {% for error in form.image.errors %}
+                <div class="alert alert-danger py-2 small">
+                  <i class="fas fa-exclamation-circle mr-1"></i>{{ error }}
+                </div>
+              {% endfor %}
+
+              <div class="form-group mt-4">
+                {{ form.submit(class="btn btn-primary btn-block btn-lg font-weight-bold",
+                               id="submitBtn") }}
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instructions + History -->
+      <div class="col-lg-6">
+
+        <!-- Instructions -->
+        <div class="card border-0 shadow mb-4">
+          <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 font-weight-bold"><i class="fas fa-info-circle text-primary mr-2"></i>Instructions</h5>
+          </div>
+          <div class="card-body p-4">
+            <ol class="pl-3 mb-0">
+              <li class="mb-2">Upload a <strong>frontal chest X-ray</strong> (PA or AP view).</li>
+              <li class="mb-2">Ensure the image is clear and not rotated.</li>
+              <li class="mb-2">Select a detection model (ResNet50 recommended).</li>
+              <li class="mb-2">Click <strong>Analyze X-Ray</strong> to run inference.</li>
+              <li>Review the result and clinical guidance shown on the next page.</li>
+            </ol>
+            <hr class="my-3"/>
+            <p class="text-muted small mb-0">
+              <i class="fas fa-shield-alt text-success mr-1"></i>
+              Your images are processed securely and are not shared with any third party.
+            </p>
+          </div>
+        </div>
+
+        <!-- Recent History -->
+        {% if history %}
+        <div class="card border-0 shadow">
+          <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 font-weight-bold"><i class="fas fa-history text-primary mr-2"></i>Recent Predictions</h5>
+            <a href="{{ url_for('prediction.history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+              {% for log in history[:5] %}
+              <div class="list-group-item px-4 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge badge-{{ 'danger' if log.result == 'PNEUMONIA' else 'success' }} mr-2">
+                      {{ log.result }}
+                    </span>
+                    <small class="text-muted">
+                      {{ log.model_used }} &bull;
+                      {{ log.confidence_score | round(2) * 100 | int }}% confidence
+                    </small>
+                  </div>
+                  <small class="text-muted">
+                    {{ log.predicted_at.strftime('%d %b, %H:%M') if log.predicted_at else '' }}
+                  </small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="d-none">
+  <div class="loading-content text-center text-white">
+    <div class="spinner-border text-light mb-3" style="width:3rem;height:3rem;" role="status">
+      <span class="sr-only">Analyzing...</span>
+    </div>
+    <h5>Analyzing your X-ray...</h5>
+    <p class="small">Please wait, this may take a few seconds.</p>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var fileInput   = document.getElementById('image');
+  var uploadArea  = document.getElementById('uploadArea');
+  var preview     = document.getElementById('imagePreview');
+  var previewBox  = document.getElementById('previewContainer');
+  var nameLabel   = document.getElementById('previewFilename');
+  var submitBtn   = document.getElementById('submitBtn');
+  var form        = document.getElementById('uploadForm');
+  var overlay     = document.getElementById('loadingOverlay');
+
+  function showPreview(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      preview.src = e.target.result;
+      previewBox.classList.remove('d-none');
+      nameLabel.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+      uploadArea.classList.add('has-file');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener('change', function () {
+    if (this.files && this.files[0]) showPreview(this.files[0]);
+  });
+
+  // Drag-and-drop
+  uploadArea.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    this.classList.add('drag-over');
+  });
+  uploadArea.addEventListener('dragleave', function () {
+    this.classList.remove('drag-over');
+  });
+  uploadArea.addEventListener('drop', function (e) {
+    e.preventDefault();
+    this.classList.remove('drag-over');
+    var file = e.dataTransfer.files[0];
+    if (file) {
+      fileInput.files = e.dataTransfer.files;
+      showPreview(file);
+    }
+  });
+
+  // Show loading overlay on submit
+  form.addEventListener('submit', function () {
+    if (fileInput.files && fileInput.files[0]) {
+      overlay.classList.remove('d-none');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing...';
+    }
+  });
+})();
+</script>
+{% endblock %}

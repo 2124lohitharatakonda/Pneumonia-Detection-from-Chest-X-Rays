@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="page-header py-4 bg-primary text-white text-center">
+  <div class="container">
+    <h1 class="display-5 font-weight-bold"><i class="fas fa-chart-bar mr-3"></i>Prediction Result</h1>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+
+        <!-- Result Banner -->
+        {% if result == 'PNEUMONIA' %}
+        <div class="alert alert-danger border-0 shadow-sm mb-4 py-4 text-center" role="alert">
+          <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>
+          <h3 class="font-weight-bold mb-1">Pneumonia Detected</h3>
+          <p class="mb-0">Please consult a medical professional immediately.</p>
+        </div>
+        {% else %}
+        <div class="alert alert-success border-0 shadow-sm mb-4 py-4 text-center" role="alert">
+          <i class="fas fa-check-circle fa-2x mb-2 d-block"></i>
+          <h3 class="font-weight-bold mb-1">No Pneumonia Detected</h3>
+          <p class="mb-0">The chest X-ray appears normal. Maintain regular health check-ups.</p>
+        </div>
+        {% endif %}
+
+        <div class="row">
+          <!-- Image Panel -->
+          <div class="col-md-5 mb-4 mb-md-0">
+            <div class="card border-0 shadow h-100">
+              <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 font-weight-bold"><i class="fas fa-image text-primary mr-2"></i>Uploaded X-Ray</h5>
+              </div>
+              <div class="card-body text-center p-3">
+                <img src="{{ image_url }}" alt="Chest X-Ray"
+                     class="img-fluid rounded shadow-sm"
+                     style="max-height: 320px; object-fit: contain;"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scores Panel -->
+          <div class="col-md-7">
+            <div class="card border-0 shadow mb-4">
+              <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 font-weight-bold"><i class="fas fa-tachometer-alt text-primary mr-2"></i>Confidence Scores</h5>
+              </div>
+              <div class="card-body p-4">
+
+                <!-- Primary result -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="font-weight-bold">{{ result }}</span>
+                  <span class="badge badge-{{ 'danger' if result == 'PNEUMONIA' else 'success' }} badge-pill px-3 py-2">
+                    {{ confidence_pct }}%
+                  </span>
+                </div>
+                <div class="progress mb-4" style="height:14px;">
+                  <div class="progress-bar bg-{{ 'danger' if result == 'PNEUMONIA' else 'success' }} progress-bar-striped"
+                       role="progressbar"
+                       style="width: {{ confidence_pct }}%;"
+                       aria-valuenow="{{ confidence_pct }}" aria-valuemin="0" aria-valuemax="100">
+                  </div>
+                </div>
+
+                <!-- All class scores -->
+                <h6 class="font-weight-bold text-muted mb-3">All Class Probabilities</h6>
+                {% for cls, score in raw_scores.items() %}
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between mb-1">
+                    <small class="font-weight-bold">{{ cls }}</small>
+                    <small class="text-muted">{{ "%.1f"|format(score * 100) }}%</small>
+                  </div>
+                  <div class="progress" style="height:8px;">
+                    <div class="progress-bar bg-{{ 'danger' if cls == 'PNEUMONIA' else 'success' }}"
+                         role="progressbar"
+                         style="width: {{ "%.1f"|format(score * 100) }}%;">
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+
+                <hr class="my-3"/>
+                <div class="row text-center">
+                  <div class="col-6">
+                    <small class="text-muted d-block">Model Used</small>
+                    <span class="font-weight-bold text-primary">{{ model_used | upper }}</span>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted d-block">Confidence</small>
+                    <span class="font-weight-bold text-primary">{{ confidence_pct }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Precautions / Guidance -->
+        <div class="card border-0 shadow mt-4">
+          <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 font-weight-bold">
+              <i class="fas fa-notes-medical text-{{ 'danger' if result == 'PNEUMONIA' else 'success' }} mr-2"></i>
+              Clinical Guidance
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="precaution-box {{ 'border-left border-danger' if result == 'PNEUMONIA' else 'border-left border-success' }} pl-3">
+              {% for line in precaution_text.split('\n') %}
+                {% if line.strip() %}
+                  <p class="mb-1">{{ line }}</p>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="alert alert-warning mt-4" role="alert">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          <strong>Disclaimer:</strong> This AI prediction is a <strong>screening tool only</strong>
+          and does not constitute a medical diagnosis. Always consult a qualified healthcare
+          professional for proper medical advice and treatment.
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4">
+          <a href="{{ url_for('prediction.user_home') }}"
+             class="btn btn-primary btn-lg px-5 mr-3 font-weight-bold">
+            <i class="fas fa-redo mr-2"></i>Analyze Another
+          </a>
+          <a href="{{ url_for('prediction.history') }}"
+             class="btn btn-outline-secondary btn-lg px-5 font-weight-bold">
+            <i class="fas fa-history mr-2"></i>View History
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
