@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <title>PneumoDetect — Pneumonia Detection System</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════════════ -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand font-weight-bold" href="#" onclick="showPage('home')">
+      <i class="fas fa-lungs mr-2"></i>PneumoDetect
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ml-auto" id="navLinks">
+        <li class="nav-item active" id="nav-home">
+          <a class="nav-link" href="#" onclick="showPage('home')"><i class="fas fa-home mr-1"></i>Home</a>
+        </li>
+        <li class="nav-item" id="nav-about">
+          <a class="nav-link" href="#" onclick="showPage('about')"><i class="fas fa-info-circle mr-1"></i>About</a>
+        </li>
+        <!-- Logged-out links -->
+        <li class="nav-item" id="nav-register">
+          <a class="nav-link" href="#" onclick="showPage('register')"><i class="fas fa-user-plus mr-1"></i>Register</a>
+        </li>
+        <li class="nav-item" id="nav-login">
+          <a class="nav-link" href="#" onclick="showPage('login')"><i class="fas fa-sign-in-alt mr-1"></i>Login</a>
+        </li>
+        <!-- Logged-in links (hidden by default) -->
+        <li class="nav-item d-none" id="nav-analyze">
+          <a class="nav-link" href="#" onclick="showPage('analyze')"><i class="fas fa-x-ray mr-1"></i>Analyze</a>
+        </li>
+        <li class="nav-item d-none" id="nav-history">
+          <a class="nav-link" href="#" onclick="showPage('history')"><i class="fas fa-history mr-1"></i>History</a>
+        </li>
+        <li class="nav-item dropdown d-none" id="nav-user">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" data-toggle="dropdown">
+            <i class="fas fa-user-circle mr-1"></i><span id="navUserName">Chandra Sekhar</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right">
+            <span class="dropdown-item-text text-muted small" id="navUserEmail">chandra@example.com</span>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-danger" href="#" onclick="doLogout()">
+              <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Flash Message Area -->
+<div id="flashArea" class="container mt-3"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════════ -->
+<main class="flex-grow-1">
+
+  <!-- ── PAGE: HOME ───────────────────────────────────────── -->
+  <div id="page-home" class="page active">
+    <section class="hero-section text-white text-center py-5">
+      <div class="container py-4">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <i class="fas fa-lungs hero-icon mb-3"></i>
+            <h1 class="display-4 font-weight-bold mb-3">Pneumonia Detection System</h1>
+            <p class="lead mb-4">Upload a chest X-ray image and get an instant AI-powered analysis using
+              state-of-the-art deep learning models — ResNet50 and MobileNetV2.</p>
+            <div id="heroLoggedOut">
+              <a href="#" onclick="showPage('register')" class="btn btn-light btn-lg font-weight-bold px-4 mr-3 shadow">
+                <i class="fas fa-user-plus mr-2"></i>Get Started
+              </a>
+              <a href="#" onclick="showPage('login')" class="btn btn-outline-light btn-lg px-4 shadow">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login
+              </a>
+            </div>
+            <div id="heroLoggedIn" class="d-none">
+              <a href="#" onclick="showPage('analyze')" class="btn btn-light btn-lg font-weight-bold px-5 shadow">
+                <i class="fas fa-x-ray mr-2"></i>Analyze X-Ray Now
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-bar py-4 bg-white shadow-sm">
+      <div class="container">
+        <div class="row text-center">
+          <div class="col-md-3 col-6 mb-3 mb-md-0">
+            <h3 class="font-weight-bold text-primary mb-0" id="stat1">0%</h3>
+            <small class="text-muted">Precision</small>
+          </div>
+          <div class="col-md-3 col-6 mb-3 mb-md-0">
+            <h3 class="font-weight-bold text-primary mb-0" id="stat2">0%</h3>
+            <small class="text-muted">Recall</small>
+          </div>
+          <div class="col-md-3 col-6">
+            <h3 class="font-weight-bold text-primary mb-0" id="stat3">0%</h3>
+            <small class="text-muted">F1 Score</small>
+          </div>
+          <div class="col-md-3 col-6">
+            <h3 class="font-weight-bold text-primary mb-0" id="stat4">0%</h3>
+            <small class="text-muted">AUC Score</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="font-weight-bold">How It Works</h2>
+          <p class="text-muted">Three simple steps to get your chest X-ray analyzed</p>
+        </div>
+        <div class="row">
+          <div class="col-md-4 text-center mb-4 mb-md-0">
+            <div class="step-card p-4 bg-white rounded shadow-sm h-100">
+              <div class="step-icon mb-3">
+                <span class="badge-circle bg-primary text-white">1</span>
+                <i class="fas fa-user-plus fa-2x text-primary mt-2 d-block"></i>
+              </div>
+              <h5 class="font-weight-bold">Register &amp; Login</h5>
+              <p class="text-muted mb-0">Create a free account and log in securely to access the analysis tool.</p>
+            </div>
+          </div>
+          <div class="col-md-4 text-center mb-4 mb-md-0">
+            <div class="step-card p-4 bg-white rounded shadow-sm h-100">
+              <div class="step-icon mb-3">
+                <span class="badge-circle bg-primary text-white">2</span>
+                <i class="fas fa-upload fa-2x text-primary mt-2 d-block"></i>
+              </div>
+              <h5 class="font-weight-bold">Upload X-Ray</h5>
+              <p class="text-muted mb-0">Upload a chest X-ray image in JPG or PNG format (max 5 MB).</p>
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="step-card p-4 bg-white rounded shadow-sm h-100">
+              <div class="step-icon mb-3">
+                <span class="badge-circle bg-primary text-white">3</span>
+                <i class="fas fa-chart-bar fa-2x text-primary mt-2 d-block"></i>
+              </div>
+              <h5 class="font-weight-bold">Get Results</h5>
+              <p class="text-muted mb-0">Receive an instant AI prediction with confidence score and clinical guidance.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-5 bg-white">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="font-weight-bold">Powered By Deep Learning</h2>
+          <p class="text-muted">Two industry-proven architectures for accurate classification</p>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-md-5 mb-4 mb-md-0">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="model-icon bg-primary text-white rounded p-2 mr-3">
+                    <i class="fas fa-network-wired fa-lg"></i>
+                  </div>
+                  <h5 class="card-title font-weight-bold mb-0">ResNet50</h5>
+                </div>
+                <p class="card-text text-muted">A 50-layer deep residual network with skip connections that solve the vanishing gradient problem. Pre-trained on ImageNet with 1M+ images, fine-tuned for pneumonia classification.</p>
+                <ul class="list-unstyled text-muted small">
+                  <li><i class="fas fa-check text-success mr-2"></i>Depth: 50 layers</li>
+                  <li><i class="fas fa-check text-success mr-2"></i>Input: 224×224 RGB</li>
+                  <li><i class="fas fa-check text-success mr-2"></i>Transfer learning from ImageNet</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="model-icon bg-success text-white rounded p-2 mr-3">
+                    <i class="fas fa-mobile-alt fa-lg"></i>
+                  </div>
+                  <h5 class="card-title font-weight-bold mb-0">MobileNetV2</h5>
+                </div>
+                <p class="card-text text-muted">A lightweight, efficient CNN designed for mobile and embedded applications. Uses depth-wise separable convolutions to minimize computation while maintaining high accuracy.</p>
+                <ul class="list-unstyled text-muted small">
+                  <li><i class="fas fa-check text-success mr-2"></i>Efficient depthwise convolutions</li>
+                  <li><i class="fas fa-check text-success mr-2"></i>Low memory footprint</li>
+                  <li><i class="fas fa-check text-success mr-2"></i>Fast inference speed</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-4">
+      <div class="container">
+        <div class="alert alert-warning mb-0" role="alert">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          <strong>Medical Disclaimer:</strong> This system is an AI-powered screening tool intended to assist healthcare professionals. It does <strong>not</strong> replace professional medical diagnosis. Always consult a qualified physician for medical advice.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── PAGE: ABOUT ──────────────────────────────────────── -->
+  <div id="page-about" class="page">
+    <section class="page-header py-5 bg-primary text-white text-center">
+      <div class="container">
+        <h1 class="display-5 font-weight-bold"><i class="fas fa-info-circle mr-3"></i>About PneumoDetect</h1>
+        <p class="lead mb-0">Technology, methodology and model performance</p>
+      </div>
+    </section>
+    <section class="py-5 bg-light">
+      <div class="container">
+
+        <div class="card border-0 shadow-sm mb-5">
+          <div class="card-body p-5">
+            <h3 class="font-weight-bold text-primary mb-4">Technology Stack</h3>
+            <div class="tech-grid">
+              <div>
+                <h6 class="font-weight-bold text-uppercase text-muted mb-3">Backend</h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="fas fa-circle text-primary mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Python 3.9+</li>
+                  <li class="mb-2"><i class="fas fa-circle text-primary mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Flask 2.3</li>
+                  <li class="mb-2"><i class="fas fa-circle text-primary mr-2" style="font-size:.5rem;vertical-align:middle;"></i>MySQL 8.0</li>
+                  <li class="mb-2"><i class="fas fa-circle text-primary mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Werkzeug (Security)</li>
+                </ul>
+              </div>
+              <div>
+                <h6 class="font-weight-bold text-uppercase text-muted mb-3">Machine Learning</h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="fas fa-circle text-success mr-2" style="font-size:.5rem;vertical-align:middle;"></i>TensorFlow 2.13</li>
+                  <li class="mb-2"><i class="fas fa-circle text-success mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Keras (ResNet50, MobileNetV2)</li>
+                  <li class="mb-2"><i class="fas fa-circle text-success mr-2" style="font-size:.5rem;vertical-align:middle;"></i>NumPy / Pillow</li>
+                  <li class="mb-2"><i class="fas fa-circle text-success mr-2" style="font-size:.5rem;vertical-align:middle;"></i>scikit-learn (Metrics)</li>
+                </ul>
+              </div>
+              <div>
+                <h6 class="font-weight-bold text-uppercase text-muted mb-3">Frontend</h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="fas fa-circle text-warning mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Bootstrap 4</li>
+                  <li class="mb-2"><i class="fas fa-circle text-warning mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Jinja2 Templates</li>
+                  <li class="mb-2"><i class="fas fa-circle text-warning mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Font Awesome 5</li>
+                </ul>
+              </div>
+              <div>
+                <h6 class="font-weight-bold text-uppercase text-muted mb-3">Deployment</h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="fas fa-circle text-danger mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Waitress (Windows)</li>
+                  <li class="mb-2"><i class="fas fa-circle text-danger mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Gunicorn (Linux)</li>
+                  <li class="mb-2"><i class="fas fa-circle text-danger mr-2" style="font-size:.5rem;vertical-align:middle;"></i>Nginx (Reverse Proxy)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-5">
+          <div class="card-body p-5">
+            <h3 class="font-weight-bold text-primary mb-4">Model Performance</h3>
+            <div class="table-responsive">
+              <table class="table table-bordered text-center">
+                <thead>
+                  <tr>
+                    <th class="text-left">Metric</th>
+                    <th class="text-success">ResNet50 + MRO <span class="badge badge-success ml-1">Best</span></th>
+                    <th>MobileNetV2</th>
+                    <th>Inception-V3</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-left font-weight-bold">Precision</td>
+                    <td class="text-success font-weight-bold">99.19%</td>
+                    <td>97.80%</td><td>96.10%</td>
+                  </tr>
+                  <tr>
+                    <td class="text-left font-weight-bold">Recall</td>
+                    <td class="text-success font-weight-bold">97.25%</td>
+                    <td>95.60%</td><td>95.54%</td>
+                  </tr>
+                  <tr>
+                    <td class="text-left font-weight-bold">F1 Score</td>
+                    <td class="text-success font-weight-bold">98.21%</td>
+                    <td>96.69%</td><td>95.82%</td>
+                  </tr>
+                  <tr>
+                    <td class="text-left font-weight-bold">AUC</td>
+                    <td class="text-success font-weight-bold">98.24%</td>
+                    <td>97.10%</td><td>96.20%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-5">
+            <h3 class="font-weight-bold text-primary mb-3">Dataset</h3>
+            <p class="text-muted">Trained on the <strong>Kaggle Chest X-Ray Images (Pneumonia)</strong> dataset by Paul Mooney.</p>
+            <div class="row mt-3">
+              <div class="col-md-4 text-center mb-3 mb-md-0">
+                <h4 class="font-weight-bold text-primary">5,216</h4>
+                <small class="text-muted">Training Images</small>
+              </div>
+              <div class="col-md-4 text-center mb-3 mb-md-0">
+                <h4 class="font-weight-bold text-primary">624</h4>
+                <small class="text-muted">Test Images</small>
+              </div>
+              <div class="col-md-4 text-center">
+                <h4 class="font-weight-bold text-primary">2</h4>
+                <small class="text-muted">Classes (NORMAL / PNEUMONIA)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- ── PAGE: REGISTER ───────────────────────────────────── -->
+  <div id="page-register" class="page">
+    <section class="page-header py-5 bg-primary text-white text-center">
+      <div class="container">
+        <h1 class="display-5 font-weight-bold"><i class="fas fa-user-plus mr-3"></i>Create Account</h1>
+        <p class="lead mb-0">Register to start analyzing chest X-rays</p>
+      </div>
+    </section>
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-6 col-md-8">
+            <div class="card border-0 shadow">
+              <div class="card-body p-5">
+                <h4 class="font-weight-bold mb-4 text-center">Registration Form</h4>
+                <form id="registerForm" novalidate>
+                  <div class="form-group">
+                    <label class="font-weight-bold">Full Name</label>
+                    <input type="text" id="reg-name" class="form-control" placeholder="Enter your full name" autofocus/>
+                    <div class="invalid-feedback">Please enter your full name.</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="font-weight-bold">Email Address</label>
+                    <input type="email" id="reg-email" class="form-control" placeholder="Enter your email address"/>
+                    <div class="invalid-feedback">Please enter a valid email.</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="font-weight-bold">Contact Number</label>
+                    <input type="tel" id="reg-phone" class="form-control" placeholder="e.g. +91 9876543210"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="font-weight-bold">Password</label>
+                    <div class="input-group">
+                      <input type="password" id="reg-password" class="form-control" placeholder="Minimum 8 characters"/>
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('reg-password','regEye')">
+                          <i class="fas fa-eye" id="regEye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <small class="form-text text-muted">Must contain at least one letter and one digit.</small>
+                  </div>
+                  <div class="form-group">
+                    <label class="font-weight-bold">Confirm Password</label>
+                    <input type="password" id="reg-confirm" class="form-control" placeholder="Re-enter your password"/>
+                    <div class="invalid-feedback">Passwords do not match.</div>
+                  </div>
+                  <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary btn-block btn-lg font-weight-bold">
+                      <i class="fas fa-user-plus mr-2"></i>Create Account
+                    </button>
+                  </div>
+                </form>
+                <hr/>
+                <p class="text-center mb-0 text-muted">
+                  Already have an account? <a href="#" onclick="showPage('login')" class="font-weight-bold">Login here</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── PAGE: LOGIN ──────────────────────────────────────── -->
+  <div id="page-login" class="page">
+    <section class="page-header py-5 bg-primary text-white text-center">
+      <div class="container">
+        <h1 class="display-5 font-weight-bold"><i class="fas fa-sign-in-alt mr-3"></i>Login</h1>
+        <p class="lead mb-0">Sign in to access the X-ray analysis tool</p>
+      </div>
+    </section>
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-5 col-md-7">
+            <div class="card border-0 shadow">
+              <div class="card-body p-5">
+                <h4 class="font-weight-bold mb-4 text-center">Welcome Back</h4>
+                <form id="loginForm" novalidate>
+                  <div class="form-group">
+                    <label class="font-weight-bold">Email Address</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="Enter your email address" autofocus/>
+                    <div class="invalid-feedback">Please enter a valid email.</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="font-weight-bold">Password</label>
+                    <div class="input-group">
+                      <input type="password" id="login-password" class="form-control" placeholder="Enter your password"/>
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('login-password','loginEye')">
+                          <i class="fas fa-eye" id="loginEye"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary btn-block btn-lg font-weight-bold">
+                      <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </button>
+                  </div>
+                </form>
+                <hr/>
+                <p class="text-center mb-0 text-muted">
+                  Don't have an account? <a href="#" onclick="showPage('register')" class="font-weight-bold">Register here</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── PAGE: ANALYZE ────────────────────────────────────── -->
+  <div id="page-analyze" class="page">
+    <section class="page-header py-5 bg-primary text-white text-center">
+      <div class="container">
+        <h1 class="display-5 font-weight-bold"><i class="fas fa-x-ray mr-3"></i>Analyze Chest X-Ray</h1>
+        <p class="lead mb-0">Upload an image and get an instant AI-powered diagnosis</p>
+      </div>
+    </section>
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="card border-0 shadow h-100">
+              <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 font-weight-bold"><i class="fas fa-upload text-primary mr-2"></i>Upload X-Ray Image</h5>
+              </div>
+              <div class="card-body p-4">
+                <div class="upload-area mb-3" id="uploadArea" onclick="document.getElementById('xrayFile').click()">
+                  <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                  <p class="text-muted mb-2">Drag &amp; drop your X-ray image here</p>
+                  <p class="text-muted small mb-3">or</p>
+                  <span class="btn btn-outline-primary mb-0"><i class="fas fa-folder-open mr-2"></i>Browse File</span>
+                  <input type="file" id="xrayFile" class="d-none" accept=".jpg,.jpeg,.png" onchange="handleFile(this)"/>
+                  <p class="text-muted small mt-2 mb-0">Accepted: JPG, JPEG, PNG &bull; Max size: 5 MB</p>
+                </div>
+
+                <div id="previewContainer" class="text-center mb-3 d-none">
+                  <img id="imagePreview" src="#" alt="X-ray preview" class="img-fluid rounded shadow-sm" style="max-height:250px;"/>
+                  <p id="previewFilename" class="text-muted small mt-2 mb-0"></p>
+                </div>
+
+                <div class="form-group">
+                  <label class="font-weight-bold">Detection Model</label>
+                  <select id="modelChoice" class="form-control">
+                    <option value="resnet50">ResNet50 (99.19% Accuracy) — Recommended</option>
+                    <option value="mobilenet">MobileNetV2 (97.80% Accuracy)</option>
+                  </select>
+                  <small class="form-text text-muted">ResNet50 is recommended for best accuracy. MobileNetV2 is faster.</small>
+                </div>
+
+                <div class="form-group mt-4">
+                  <button class="btn btn-primary btn-block btn-lg font-weight-bold" id="analyzeBtn" onclick="runAnalysis()">
+                    <i class="fas fa-search-plus mr-2"></i>Analyze X-Ray
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card border-0 shadow mb-4">
+              <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 font-weight-bold"><i class="fas fa-info-circle text-primary mr-2"></i>Instructions</h5>
+              </div>
+              <div class="card-body p-4">
+                <ol class="pl-3 mb-0">
+                  <li class="mb-2">Upload a <strong>frontal chest X-ray</strong> (PA or AP view).</li>
+                  <li class="mb-2">Ensure the image is clear and not rotated.</li>
+                  <li class="mb-2">Select a detection model (ResNet50 recommended).</li>
+                  <li class="mb-2">Click <strong>Analyze X-Ray</strong> to run inference.</li>
+                  <li>Review the result and clinical guidance shown on the next page.</li>
+                </ol>
+                <hr class="my-3"/>
+                <p class="text-muted small mb-0">
+                  <i class="fas fa-shield-alt text-success mr-1"></i>
+                  Your images are processed securely and are not shared with any third party.
+                </p>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow" id="recentCard">
+              <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 font-weight-bold"><i class="fas fa-history text-primary mr-2"></i>Recent Predictions</h5>
+                <a href="#" onclick="showPage('history')" class="btn btn-sm btn-outline-primary">View All</a>
+              </div>
+              <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="recentList"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="loadingOverlay" class="d-none">
+      <div class="text-center text-white">
+        <div class="spinner-border text-light mb-3" style="width:3rem;height:3rem;" role="status"></div>
+        <h5>Analyzing your X-ray...</h5>
+        <p class="small">Please wait, this may take a few seconds.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: RESULT ─────────────────────────────────────── -->
+  <div id="page-result" class="page">
+    <section class="page-header py-4 bg-primary text-white text-center">
+      <div class="container">
+        <h1 class="display-5 font-weight-bold"><i class="fas fa-chart-bar mr-3"></i>Prediction Result</h1>
+      </div>
+    </section>
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div id="resultBanner" class="mb-4"></div>
+            <div class="row">
+              <div class="col-md-5 mb-4 mb-md-0">
+                <div class="card border-0 shadow h-100">
+                  <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 font-weight-bold"><i class="fas fa-image text-primary mr-2"></i>Uploaded X-Ray</h5>
+                  </div>
+                  <div class="card-body text-center p-3">
+                    <img id="resultImage" src="#" alt="Chest X-Ray" class="img-fluid rounded shadow-sm" style="max-height:320px;object-fit:contain;"/>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div class="card border-0 shadow mb-4">
+                  <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 font-weight-bold"><i class="fas fa-tachometer-alt text-primary mr-2"></i>Confidence Scores</h5>
+                  </div>
+                  <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="font-weight-bold" id="primaryLabel"></span>
+                      <span class="badge badge-pill px-3 py-2" id="primaryBadge"></span>
+                    </div>
+                    <div class="progress mb-4" style="height:14px;">
+                      <div class="progress-bar progress-bar-striped" id="primaryBar" role="progressbar" style="width:0%"></div>
+                    </div>
+                    <h6 class="font-weight-bold text-muted mb-3">All Class Probabilities</h6>
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between mb-1">
+                        <small class="font-weight-bold">PNEUMONIA</small>
+                        <small class="text-muted" id="pneumoniaScoreLabel"></small>
+                      </div>
+                      <div class="progress" style="height:8px;">
+                        <div class="progress-bar bg-danger" id="pneumoniaBar" style="width:0%;"></div>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between mb-1">
+                        <small class="font-weight-bold">NORMAL</small>
+                        <small class="text-muted" id="normalScoreLabel"></small>
+                      </div>
+                      <div class="progress" style="height:8px;">
+                        <div class="progress-bar bg-success" id="normalBar" style="width:0%;"></div>
+                      </div>
+                    </div>
+                    <hr class="my-3"/>
+                    <div class="row text-center">
+                      <div class="col-6">
+                        <small class="text-muted d-block">Model Used</small>
+                        <span class="font-weight-bold text-primary" id="modelUsedLabel"></span>
+                      </div>
+                      <div class="col-6">
+                        <small class="text-muted d-block">Confidence</small>
+                        <span class="font-weight-bold text-primary" id="confidenceLabel"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow mt-4">
+              <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 font-weight-bold" id="guidanceHeader"></h5>
+              </div>
+              <div class="card-body p-4">
+                <div class="precaution-box border-left pl-3" id="guidanceBox"></div>
+              </div>
+            </div>
+
+            <div class="alert alert-warning mt-4" role="alert">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              <strong>Disclaimer:</strong> This AI prediction is a <strong>screening tool only</strong> and does not constitute a medical diagnosis. Always consult a qualified healthcare professional.
+            </div>
+
+            <div class="text-center mt-4">
+              <a href="#" onclick="showPage('analyze')" class="btn btn-primary btn-lg px-5 mr-3 font-weight-bold">
+                <i class="fas fa-redo mr-2"></i>Analyze Another
+              </a>
+              <a href="#" onclick="showPage('history')" class="btn btn-outline-secondary btn-lg px-5 font-weight-bold">
+                <i class="fas fa-history mr-2"></i>View History
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── PAGE: HISTORY ────────────────────────────────────── -->
+  <div id="page-history" class="page">
+    <section class="page-header py-5 bg-primary text-white text-center">
+      <div class="container">
+        <h1 class="display-5 font-weight-bold"><i class="fas fa-history mr-3"></i>Prediction History</h1>
+        <p class="lead mb-0">Your past chest X-ray analysis results</p>
+      </div>
+    </section>
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <p class="text-muted mb-0">Showing <strong id="histCount">0</strong> most recent predictions</p>
+          <a href="#" onclick="showPage('analyze')" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus mr-1"></i>New Analysis
+          </a>
+        </div>
+        <div class="row" id="historyGrid"></div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<!-- ── FOOTER ──────────────────────────────────────────────── -->
+<footer class="footer-section mt-5 py-4 bg-dark text-white text-center">
+  <div class="container">
+    <p class="mb-1">
+      <i class="fas fa-lungs mr-2 text-primary"></i>
+      <strong>PneumoDetect</strong> — Pneumonia Detection System using Deep Learning
+    </p>
+    <p class="mb-0 text-muted small">
+      &copy; 2024 R.M.K. Engineering College — CSE Department.
+      <span class="mx-2">|</span>
+      <em>For medical screening purposes only. Not a substitute for professional diagnosis.</em>
+    </p>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
